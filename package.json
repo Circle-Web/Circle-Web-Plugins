@@ -1,0 +1,14 @@
+{
+  "name": "Circle-Web-Plugins",
+  "version": "1.0.0",
+  "description": "circle web plugins",
+  "scripts": {
+    "dev:market": "pnpm -C packages/market dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "esbuild": "^0.15.13"
+  }
+}
