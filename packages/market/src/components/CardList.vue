@@ -278,9 +278,9 @@ const plugins = [
     display: flex;
     flex-direction: row;
     align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
     .sc__card-keyword {
-      width: 66px;
-      height: 22px;
       background: #f4f5f8;
       border-radius: 10px;
       display: flex;
@@ -291,6 +291,7 @@ const plugins = [
       line-height: 16px;
       color: rgba(0, 0, 0, 0.4);
       margin-left: 4px;
+      padding: 2px 4px;
     }
   }
 
