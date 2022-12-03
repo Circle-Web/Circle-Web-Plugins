@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { useRouter } from "vue-router";
+
 const plugins = [
   {
     extUuid: "knvlecop",
@@ -173,10 +175,20 @@ const plugins = [
     hasUserRatingExt: false,
   },
 ];
+
+const router = useRouter();
+const toDetail = (row: any) => {
+  router.push({ name: "detail", params: { id: row.extVersionId } });
+};
 </script>
 
 <template>
-  <div class="sc__card" v-for="plugin in plugins" :key="plugin.extVersionId">
+  <div
+    class="sc__card"
+    v-for="plugin in plugins"
+    :key="plugin.extVersionId"
+    @click="toDetail(plugin)"
+  >
     <div class="sc__card-body">
       <img :src="plugin.extLogo" class="sc__card-logo" />
       <div class="sc__card-content">

@@ -1,9 +1,10 @@
 {
-  "name": "Circle-Web-Plugins",
+  "name": "circle-web-plugins",
   "version": "1.0.0",
   "description": "circle web plugins",
   "scripts": {
-    "dev:market": "pnpm -C packages/market dev"
+    "dev:market": "pnpm -C packages/market dev",
+    "dev:sign": "pnpm -C packages/sign dev"
   },
   "keywords": [],
   "author": "",
