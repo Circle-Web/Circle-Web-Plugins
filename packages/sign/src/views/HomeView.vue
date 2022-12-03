@@ -17,8 +17,8 @@
 </template> 
 
 <script lang="ts" setup>
-import { getUserInfo } from '@/utils/ext';
-import { ref } from 'vue'
+import { share } from '@/utils/ext';
+import { ref } from 'vue';
 
 const array = ["坚持带口罩","学习打卡","上班打卡","自习开始","每日首胜"]
 const curTitle = ref("坚持带口罩")
@@ -28,8 +28,9 @@ const onSelect = (index: number) => {
 }
 
 const send = () => {
-  // window.parent.postMessage({type:'signIn', title_name: curTitle.value}, '*')
-  getUserInfo()
+  share({
+    title_name:curTitle.value
+  })
 }
 </script>
 
