@@ -25,8 +25,8 @@
 
 <script lang="ts" setup>
 import { getUserInfo } from '@/utils/ext';
-import axios from 'axios';
-import ElMessage from 'element-plus';
+import { get, post } from '@/utils/http';
+import { ElMessage } from 'element-plus';
 import { onMounted, ref } from 'vue';
 const today = new Date() // 日/月  星期六
 const username = ref("sbcyk")
@@ -44,50 +44,43 @@ onMounted(() => {
 })
 const getSignInData = () => {
   getUserInfo().then(res => {
-    serverId = res.data.currentChannleInfo.serverId
-    username.value = res.userInfo.username
-    axios.get(`/sign-ext/info?serverId=${serverId}&username=${res.userInfo.username}`)
-      .then(res => {
-        if (res.code != 0) {
-          ElMessage({
-            message: res.msg,
-            type: 'warning',
-          })
-          return
-        }
-        signToday.value = res.value.signToday
-        day.value = res.value.day
-        person.value = res.value.person
-        rankIndexToday.value = res.value.rankIndexToday
-        ownRecordList.value = res.value.ownRecordList
-        if (signToday.value) {
-          signTime.value = new Date(res.value.signTime)
-        }
-      })
-  })
-}
-
-const signIn = () => {
-  axios.post(`/sign-ext/sign`, {
-    serverId, username
-  }).then(res => {
-    if (res.code != 0) {
+    serverId = res.data.currentChannelInfo.serverId
+    username.value = res.data.userInfo.username
+    get(`/sign-ext/info`, {
+      serverId, username: res.data.userInfo.username
+    }).then((res: any) => {
+      signToday.value = res.value.signToday
+      day.value = res.value.day
+      person.value = res.value.person
+      rankIndexToday.value = res.value.rankIndexToday
+      ownRecordList.value = res.value.ownRecordList
+      if (signToday.value) {
+        signTime.value = new Date(res.value.signTime)
+      }
+    }).catch(res => {
       ElMessage({
         message: res.msg,
         type: 'warning',
       })
-      return
-    }
+    })
+  })
+}
+
+const signIn = () => {
+  post(`/sign-ext/sign`, {
+    serverId, username: username.value
+  }).then((res: any) => {
     signToday.value = true
     day.value = res.value.day
     rankIndexToday.value = res.value.rankIndexToday
     ownRecordList.value = res.value.ownRecordList
     signTime.value = new Date(res.value.signTime)
+  }).catch(res => {
+    ElMessage({
+      message: res.msg,
+      type: 'warning',
+    })
   })
-
-  day.value++
-  person.value++
-  signToday.value = true
 }
 </script>
 
