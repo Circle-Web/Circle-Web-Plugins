@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@emojiiii/iframe-promise": "^1.0.3",
+    "axios": "^1.2.0",
     "pinia": "^2.0.26",
+    "qs": "^6.11.0",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },
