@@ -14,9 +14,9 @@ window.addEventListener('unload', () => {
     removeListenerMessage()
 })
 
-export const getUserInfo = () => {
+export const getUserInfo = (): Promise<any> => {
     return new Promise((resolve, reject) => {
-        postPromiseMessage('getUserInfo', '').then((res) => {
+        postPromiseMessage('getUserInfo', '').then((res: any) => {
             console.log('用户信息： ', res)
             resolve(res)
         }).catch(err => {
