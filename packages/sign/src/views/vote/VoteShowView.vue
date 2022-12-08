@@ -106,6 +106,9 @@ const getMainRecord = () => {
             for (const index of select) {
                 options[index].selectCount++
             }
+            if (iterator.userId === userId) {
+                // todo：自己已投，修改ui，显示每个选项多少票
+            }
         }
         vote.options = options
     }).catch(res => {
