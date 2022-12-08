@@ -1,8 +1,9 @@
 {
-  "name": "sdk",
+  "name": "@circle/sdk",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./lib/index.ts",
+  "module": "./lib/index.ts",
   "scripts": {
     "build": "esbuild"
   },
@@ -10,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@emojiiii/iframe-promise": "^1.0.3",
+    "@emojiiii/iframe-promise": "^2.0.1",
     "events": "^3.3.0"
   },
   "devDependencies": {

@@ -1,0 +1,67 @@
+<script lang="ts" setup>
+import {ElDialog} from "element-plus";
+import type {Component} from "vue";
+
+withDefaults(
+    defineProps<{
+        defaultSlot: Component;
+        footerSlot?: Component;
+        title?: string;
+        width?: string;
+        showClose?: boolean;
+        wrapperProps?: Record<string, any>;
+    }>(),
+    {
+        width: "420px",
+        showClose: false
+    }
+);
+
+const emits = defineEmits<{
+    (event: "close"): void;
+    (event: "open"): void;
+}>();
+
+const handleOpened = async () => {
+    emits("open");
+};
+const close = () => {
+    emits("close");
+};
+</script>
+<template>
+    <ElDialog
+        custom-class="wc-dialog__body"
+        :show-close="showClose"
+        :close-on-press-escape="false"
+        :close-on-click-modal="false"
+        :model-value="true"
+        :modal="false"
+        draggable
+        :title="title"
+        :width="width"
+        @opened="handleOpened"
+        @close="close"
+    >
+        <component :is="defaultSlot" @close="close" v-bind="wrapperProps"></component>
+        <template v-if="footerSlot" #footer>
+            <component :is="footerSlot"></component>
+        </template>
+    </ElDialog>
+</template>
+
+<style lang="scss">
+.wc-dialog__body {
+    --el-dialog-padding-primary: 0;
+    .el-dialog__header {
+        margin: 0;
+        padding: 8px;
+        text-align: center;
+    }
+    .wc-call__body {
+        width: 100%;
+        height: 500px;
+        position: relative;
+    }
+}
+</style>

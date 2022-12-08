@@ -1,12 +1,13 @@
-import { useConnectParent } from '@emojiiii/iframe-promise'
+import { Message, useConnectParent } from '@emojiiii/iframe-promise'
 import { EXT_EVENT_NAME } from './event'
 
 const {
     addlistenerMessage,
     removeListenerMessage,
-    postMessage,
-    postPromiseMessage
-} = useConnectParent({})
+    reqeust,
+    listenMessage,
+    unlistenMessage
+} = useConnectParent<EXT_EVENT_NAME>({})
 
 addlistenerMessage()
 
@@ -53,16 +54,7 @@ export interface IBaseInfo {
  * @returns 
  */
 export const getBaseInfo = () => {
-    return new Promise((resolve, reject) => {
-        /**
-         * TODO 优化 postPromiseMessage, 第二个参数和返回值都需要泛型
-         */
-        postPromiseMessage(EXT_EVENT_NAME.BASE_INFO).then((res: any) => {
-            resolve(res as IFrameResponse<IBaseInfo>)
-        }).catch(err => {
-            reject(err)
-        })
-    })
+    return reqeust<any, IFrameResponse<IBaseInfo>>(EXT_EVENT_NAME.BASE_INFO)
 }
 
 
@@ -75,14 +67,23 @@ export interface IShareResponse {
 }
 
 /**
+ * 分享的内容
+ */
+export interface IShareInfo {
+    customExts: {
+        title: string;
+    };
+}
+
+/**
  * 分享信息
  * @param customExts 
  * @returns 
  */
 export const share = (customExts: any) => {
     return new Promise((resolve, reject) => {
-        postPromiseMessage(EXT_EVENT_NAME.SHARE, { customExts }).then((res) => {
-            resolve(res as IFrameResponse<IShareResponse>)
+        reqeust<IShareInfo, IFrameResponse<IShareResponse>>(EXT_EVENT_NAME.SHARE, { customExts }).then((res) => {
+            resolve(res)
         }).catch(err => {
             reject(err)
         })
@@ -94,9 +95,16 @@ export const share = (customExts: any) => {
  * 监听信息
  * @param callback 
  */
-export const receivedMessage = (callback: (data: any) => void) => {
+export const receivedMessage = (callback: (data: Message<any>) => void) => {
     /**
      * 发送一种
      */
-    postMessage(EXT_EVENT_NAME.LISTEN_MESSAGE, { callback })
+    return listenMessage(EXT_EVENT_NAME.LISTEN_MESSAGE, callback)
+}
+
+/**
+ * 取消监听信息
+ */
+export const unReceivedMessage = (callback: (data: Message<any>) => void) => {
+    // unlistenMessage()
 }

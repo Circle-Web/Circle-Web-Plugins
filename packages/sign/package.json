@@ -11,7 +11,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "@emojiiii/iframe-promise": "^1.0.3",
+    "@circle/sdk": "workspace:^1.0.0",
     "axios": "^1.2.0",
     "element-plus": "^2.2.26",
     "pinia": "^2.0.26",

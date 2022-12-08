@@ -24,7 +24,7 @@
 </template> 
 
 <script lang="ts" setup>
-import { getUserInfo } from '@/utils/ext';
+import { getBaseInfo } from '@/utils/ext';
 import { get, post } from '@/utils/http';
 import { ElMessage } from 'element-plus';
 import { onMounted, ref } from 'vue';
@@ -43,7 +43,7 @@ onMounted(() => {
   getSignInData()
 })
 const getSignInData = () => {
-  getUserInfo().then(res => {
+  getBaseInfo().then(res => {
     serverId = res.data.currentChannelInfo.serverId
     username.value = res.data.userInfo.username
     get(`/sign-ext/info`, {

@@ -59,18 +59,18 @@ importers:
 
   packages/sdk:
     specifiers:
-      '@emojiiii/iframe-promise': ^1.0.3
+      '@emojiiii/iframe-promise': ^2.0.1
       '@types/events': ^3.0.0
       events: ^3.3.0
     dependencies:
-      '@emojiiii/iframe-promise': 1.0.3
+      '@emojiiii/iframe-promise': 2.0.1
       events: 3.3.0
     devDependencies:
       '@types/events': 3.0.0
 
   packages/sign:
     specifiers:
-      '@emojiiii/iframe-promise': ^1.0.3
+      '@circle/sdk': workspace:^1.0.0
       '@rushstack/eslint-patch': ^1.1.4
       '@types/node': ^18.11.9
       '@vitejs/plugin-vue': ^3.2.0
@@ -90,7 +90,7 @@ importers:
       vue-router: ^4.1.6
       vue-tsc: ^1.0.9
     dependencies:
-      '@emojiiii/iframe-promise': 1.0.3
+      '@circle/sdk': link:../sdk
       axios: 1.2.0
       element-plus: 2.2.26_vue@3.2.45
       pinia: 2.0.27_e7lp6ggkpgyi5vqd44m2kxvk6i
@@ -430,8 +430,8 @@ packages:
       vue: 3.2.45
     dev: false
 
-  /@emojiiii/iframe-promise/1.0.3:
-    resolution: {integrity: sha512-JsrdbO7OuRELKmG7u2CmWajS9FtH0ewuwrYrclmxO3uN7SR2Autdwd4mX2DptTSGo26b2+9cZMRJvRczz3BlTw==}
+  /@emojiiii/iframe-promise/2.0.1:
+    resolution: {integrity: sha512-wuFp7SBJ3+rlEEEGco7Iem/HT21we9aE/Q/DdSj6l3h/+5FrTMF2P0hNMnXW0+8LIVhokb/svBkVS7YDoYZafg==}
     dev: false
 
   /@esbuild/android-arm/0.15.13:
