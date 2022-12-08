@@ -21,7 +21,17 @@ const router = createRouter({
       path: '/robot',
       name: 'robot',
       component: () => import('../views/RobotView.vue')
-    }
+    },
+    {
+      path: '/ext/vote/index',
+      name: 'vote',
+      component: () => import('../views/vote/VoteView.vue')
+    },
+    {
+      path: '/ext/vote/show',
+      name: 'voteShow',
+      component: () => import('../views/vote/VoteShowView.vue')
+    },
   ]
 })
 
