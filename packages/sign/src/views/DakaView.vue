@@ -44,10 +44,10 @@ onMounted(() => {
 })
 const getSignInData = () => {
   getBaseInfo().then(res => {
-    serverId = res.data.currentChannelInfo.serverId
-    username.value = res.data.userInfo.username
+    serverId = res.currentChannelInfo.serverId
+    username.value = res.userInfo.username
     get(`/api/ext/sign/info`, {
-      serverId, username: res.data.userInfo.username
+      serverId, username: res.userInfo.username
     }).then((res: any) => {
       signToday.value = res.value.signToday
       day.value = res.value.day

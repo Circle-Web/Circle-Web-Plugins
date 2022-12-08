@@ -11,10 +11,6 @@ const {
 
 addlistenerMessage()
 
-window.addEventListener('unload', () => {
-    removeListenerMessage()
-})
-
 /**
  * iframe response
  */
@@ -54,7 +50,7 @@ export interface IBaseInfo {
  * @returns 
  */
 export const getBaseInfo = () => {
-    return reqeust<any, IFrameResponse<IBaseInfo>>(EXT_EVENT_NAME.BASE_INFO)
+    return reqeust<any, IBaseInfo>(EXT_EVENT_NAME.BASE_INFO)
 }
 
 
@@ -70,9 +66,16 @@ export interface IShareResponse {
  * 分享的内容
  */
 export interface IShareInfo {
-    customExts: {
-        title: string;
-    };
+    customExts: ICustomExts
+}
+
+/**
+ * 自定义的扩展信息
+ * 分享的时候会带上
+ */
+export interface ICustomExts {
+    title: string
+    backgroundUrl: string
 }
 
 /**
@@ -80,14 +83,8 @@ export interface IShareInfo {
  * @param customExts 
  * @returns 
  */
-export const share = (customExts: any) => {
-    return new Promise((resolve, reject) => {
-        reqeust<IShareInfo, IFrameResponse<IShareResponse>>(EXT_EVENT_NAME.SHARE, { customExts }).then((res) => {
-            resolve(res)
-        }).catch(err => {
-            reject(err)
-        })
-    })
+export const share = (customExts: ICustomExts) => {
+    return reqeust<IShareInfo, IFrameResponse<IShareResponse>>(EXT_EVENT_NAME.SHARE, { customExts })
 }
 
 
@@ -106,5 +103,5 @@ export const receivedMessage = (callback: (data: Message<any>) => void) => {
  * 取消监听信息
  */
 export const unReceivedMessage = (callback: (data: Message<any>) => void) => {
-    // unlistenMessage()
+    // unlistenMessage(callback)
 }

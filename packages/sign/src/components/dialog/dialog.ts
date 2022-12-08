@@ -1,4 +1,5 @@
-import {Component, h, render} from "vue";
+import {h, render} from "vue";
+import type {Component} from 'vue'
 import dialog from "./dialog-contructor.vue";
 
 import type {AppContext, ComponentPublicInstance} from "vue";

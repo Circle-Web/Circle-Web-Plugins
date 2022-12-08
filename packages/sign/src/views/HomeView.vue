@@ -1,75 +1,152 @@
 <template>
-  <div class="main">
-    <div class="top">
-    </div>
-    <h1 class="div-a">{{ curTitle }}</h1>
-    <div class="select">
+  <div class="ext__share">
 
-      <div v-for="(item, index) in array" :key="item" class="item" @click="onSelect(index)">
-        <p>{{ item }}</p>
-        <p>打卡</p>
+    <ElScrollbar>
+      <div class="ext__cur-header">
+        <img :src="current.backgroundUrl">
+        <div class="ext__cur-title">{{current.curTitle}}</div>
       </div>
-      <button @click="send">发送</button>
-      <div>
+      <div class="ext__share-list">
+        <div v-for="(item, index) in signList" :key="index" class="ext__share-item" @click="onSelect(index)">
+          <img :src="item.backgroundUrl" />
+          <div class="ext__share-item-title">{{item.title}}</div>
+        </div>
       </div>
+    </ElScrollbar>
+
+    <div class="ext__share-footer">
+      <ElButton type="primary" @click="send" :loading="loading">发送</ElButton>
     </div>
   </div>
-</template> 
+</template>
 
 <script lang="ts" setup>
-import { share } from '@/utils/ext';
-import { ref } from 'vue';
+  import {
+    share
+  } from '@/utils/ext';
+  import {
+    reactive,
+    ref
+  } from 'vue';
+  import {
+    ElButton,
+    ElMessage,
+    ElScrollbar
+  } from 'element-plus'
 
-const array = ["坚持带口罩","学习打卡","上班打卡","自习开始","每日首胜"]
-const curTitle = ref("坚持带口罩")
+  const signList = [{
+      title: '坚持戴口罩',
+      backgroundUrl: 'http://rmf3cjpb1.hn-bkt.clouddn.com/logo/1_1670516271601'
+    },
+    {
+      title: '学习打卡',
+      backgroundUrl: 'http://rmf3cjpb1.hn-bkt.clouddn.com/logo/1_1670516306583'
+    },
+    {
+      title: '上班打卡',
+      backgroundUrl: 'http://rmf3cjpb1.hn-bkt.clouddn.com/logo/1_1670516326591'
+    },
+    {
+      title: '每日首胜',
+      backgroundUrl: 'http://rmf3cjpb1.hn-bkt.clouddn.com/logo/1_1670516342398'
+    },
+    {
+      title: '天气',
+      backgroundUrl: 'http://rmf3cjpb1.hn-bkt.clouddn.com/logo/1_1670516352696'
+    }
+  ]
 
-const onSelect = (index: number) => {
-  curTitle.value = array[index]
-}
-
-const send = () => {
-  share({
-    title_name:curTitle.value
+  const current = reactive({
+    curTitle: signList[0].title,
+    backgroundUrl: signList[0].backgroundUrl
   })
-}
+
+  const onSelect = (index: number) => {
+    current.backgroundUrl = signList[index].backgroundUrl
+    current.curTitle = signList[index].title
+  }
+
+  const loading = ref(false)
+
+  const send = () => {
+    loading.value = true
+    share({
+      title: current.curTitle,
+      backgroundUrl: current.backgroundUrl
+    }).then(res => {
+      ElMessage.success('分享成功')
+      console.log('res: ', res)
+    }).catch(err => {
+      ElMessage.error(err.msg)
+      console.log('err: ', err)
+    }).finally(() => {
+      loading.value = false
+    })
+  }
 </script>
 
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
+<style lang="scss">
+  .ext__share {
+    display: flex;
+    flex-direction: column;
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
+    .ext__cur-header {
+      width: 100%;
+      height: 200px;
+      background-color: brown;
+      position: relative;
+      margin-top: 12px;
+      border-radius: 4px;
 
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
+      img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+      }
+    }
 
-.item {
-  background-color: greenyellow;
-}
+    .ext__cur-title {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      color: #000;
+      font-weight: bold;
+    }
 
-.main {
-  width: 100%;
-  height: 100%;
-}
+    .ext__share-list {
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: space-between;
+      flex: 1;
+      overflow-y: auto;
+    }
 
-.div-a {
-  position: absolute;
-  left: 30px;
-  top: 30px;
-  z-index: 100;
-  width: 200px;
-  height: 100px;
-}
+    .ext__share-item {
+      width: 48%;
+      margin-top: 12px;
+      background-color: chocolate;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
 
-.top {
-  width: 100px;
-  height: 100px;
-  background-color: blue;
-}
+      img {
+        height: 200px;
+        width: 100%;
+        object-fit: cover;
+      }
+
+      .ext__share-item-title {
+        text-align: center;
+        padding: 4px;
+      }
+    }
+
+    .ext__share-footer {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      padding: 12px;
+    }
+  }
 </style>

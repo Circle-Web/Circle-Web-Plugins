@@ -59,11 +59,11 @@ importers:
 
   packages/sdk:
     specifiers:
-      '@emojiiii/iframe-promise': ^2.0.1
+      '@emojiiii/iframe-promise': ^2.0.2
       '@types/events': ^3.0.0
       events: ^3.3.0
     dependencies:
-      '@emojiiii/iframe-promise': 2.0.1
+      '@emojiiii/iframe-promise': 2.0.2
       events: 3.3.0
     devDependencies:
       '@types/events': 3.0.0
@@ -430,8 +430,8 @@ packages:
       vue: 3.2.45
     dev: false
 
-  /@emojiiii/iframe-promise/2.0.1:
-    resolution: {integrity: sha512-wuFp7SBJ3+rlEEEGco7Iem/HT21we9aE/Q/DdSj6l3h/+5FrTMF2P0hNMnXW0+8LIVhokb/svBkVS7YDoYZafg==}
+  /@emojiiii/iframe-promise/2.0.2:
+    resolution: {integrity: sha512-+REFmXKTPtx4h7MH3pt6f5eSig1PAe71yJvPHWi1we/yNkrOttt00V1gvMWeGmhyneD5LSJJ98ShNOhLTuqUew==}
     dev: false
 
   /@esbuild/android-arm/0.15.13:

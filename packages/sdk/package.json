@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@emojiiii/iframe-promise": "^2.0.1",
+    "@emojiiii/iframe-promise": "^2.0.2",
     "events": "^3.3.0"
   },
   "devDependencies": {
