@@ -46,7 +46,7 @@ const getSignInData = () => {
   getBaseInfo().then(res => {
     serverId = res.data.currentChannelInfo.serverId
     username.value = res.data.userInfo.username
-    get(`/sign-ext/info`, {
+    get(`/api/ext/sign/info`, {
       serverId, username: res.data.userInfo.username
     }).then((res: any) => {
       signToday.value = res.value.signToday
@@ -67,7 +67,7 @@ const getSignInData = () => {
 }
 
 const signIn = () => {
-  post(`/sign-ext/sign`, {
+  post(`/api/ext/sign/sign`, {
     serverId, username: username.value
   }).then((res: any) => {
     signToday.value = true
