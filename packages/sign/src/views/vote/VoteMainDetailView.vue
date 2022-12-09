@@ -12,6 +12,9 @@
         <div style="font-size:small;color: grey;">{{ vote.userId }} · {{ vote.createTime }} · {{ selectedTotalCount
         }}人已投</div>
     </div>
+    <div v-if="vote.finish">
+        <el-tag type="info">已结束</el-tag>
+    </div>
     <div style="margin: 20px" />
     <div v-for="(item, index) in vote.options" :key="index" class="option">
         <el-checkbox v-if="vote.multipleChoice" v-model="item.select" :label="item.desc" size="large" />
@@ -19,13 +22,20 @@
         <el-divider />
     </div>
     <div style="margin: 100px" />
-    <el-button type="primary" :disabled="selectBtnDisabled" @click="select" class="select-btn"
-        v-show="(!selected || vote.finish)">投票</el-button>
+    <div>
+        <el-button type="primary" :disabled="selectBtnDisabled" @click="select" class="select-btn"
+            v-show="(!selected || vote.finish)">投票</el-button>
+        <div v-if="(vote.userId === userId)">
+            <el-button type="primary" :disabled="selectBtnDisabled" @click="sendMsg" class="select-btn">重发到群</el-button>
+            <el-button type="normal" :disabled="selectBtnDisabled" @click="close" class="select-btn">结束投票</el-button>
+        </div>
+    </div>
 </template>
 
 <script lang="ts" setup>
-import { getUserInfo } from '@/utils/ext';
+import { getBaseInfo } from '@/utils/ext';
 import { get, post } from '@/utils/http';
+import type { IBaseInfo } from '@circle/sdk';
 import { ElButton, ElCheckbox, ElDivider, ElMessage, ElRadio, ElTag } from 'element-plus';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -69,11 +79,11 @@ watch(vote.options, () => {
     selectBtnDisabled.value = vote.options.filter(o => o.select).length <= 0
 })
 onMounted(() => {
-    getUserInfo().then(res => {
-        if (!res.data) {
+    getBaseInfo().then(res => {
+        if (!res) {
             return
         }
-        userId = res.data.userInfo.username
+        userId = res.userInfo.username
         getMainRecord()
     })
 })
@@ -120,6 +130,9 @@ const getMainRecord = () => {
 }
 
 const select = () => {
+    if (vote.finish) {
+        return
+    }
     if (selectBtnDisabled.value) {
         return
     }
@@ -130,17 +143,46 @@ const select = () => {
             select.push(index)
         }
     }
-    getUserInfo().then(res => {
-        post(`/api/ext/vote/select`, {
+    post(`/api/ext/vote/select`, {
+        id: vote.id,
+        select,
+        userId
+    }).then((res: any) => {
+        getMainRecord()
+        ElMessage({
+            message: `投票成功`,
+            type: 'success',
+        })
+    }).catch(res => {
+        ElMessage({
+            message: res.msg,
+            type: 'warning',
+        })
+    })
+
+}
+
+const sendMsg = () => {
+    getBaseInfo().then((res: IBaseInfo) => {
+        const channelId = res.currentChannelInfo.channelId
+        //todo: 根据前端缓存的webhook
+        const key = ``
+        const msg = {
             id: vote.id,
-            select,
-            userId
+            title: vote.title,
+            options: vote.options,
+        }
+        post(`/api/im/robot/webhook/send?key=${key}`, {
+            type: 'custom',
+            body: {
+                msg: JSON.stringify(msg)
+            },
+            customEvent: 'vote',
+            customExts: {
+                customMsgType: 4
+            }
         }).then((res: any) => {
-            getMainRecord()
-            ElMessage({
-                message: `投票成功`,
-                type: 'success',
-            })
+
         }).catch(res => {
             ElMessage({
                 message: res.msg,
@@ -148,7 +190,20 @@ const select = () => {
             })
         })
     })
-
+}
+const close = () => {
+    //todo: 增加二次确认
+    post(`/api/ext/vote/close`, {
+        id: route.query.id,
+        userId
+    }).then((res: any) => {
+        vote.finish = true
+    }).catch(res => {
+        ElMessage({
+            message: res.msg,
+            type: 'warning',
+        })
+    })
 }
 </script>
 <style >

@@ -28,9 +28,14 @@ const router = createRouter({
       component: () => import('../views/vote/VoteView.vue')
     },
     {
-      path: '/ext/vote/show',
-      name: 'voteShow',
-      component: () => import('../views/vote/VoteShowView.vue')
+      path: '/ext/vote/mainDetail',
+      name: 'voteMainDetail',
+      component: () => import('../views/vote/VoteMainDetailView.vue')
+    },
+    {
+      path: '/ext/vote/historyRecord',
+      name: 'voteHistoryRecord',
+      component: () => import('../views/vote/VoteHistoryRecordView.vue')
     },
   ]
 })

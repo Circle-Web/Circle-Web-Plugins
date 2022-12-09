@@ -23,10 +23,12 @@
     </el-form>
     <div style="margin: 20px" />
     <el-button type="primary" :disabled="createBtnDisabled" @click="create" class="add-btn">发起投票</el-button>
+    <el-button type="primary" :disabled="createBtnDisabled" @click="getHistoryRecord" class="add-btn">历史投票</el-button>
 </template>
 
 <script lang="ts" setup>
-import { getUserInfo, share } from '@/utils/ext';
+import router from '@/router';
+import { getBaseInfo, share } from '@/utils/ext';
 import { post } from '@/utils/http';
 // import { Delete } from "@element-plus/icons-vue";
 import { ElButton, ElCheckbox, ElDivider, ElForm, ElFormItem, ElInput, ElMessage } from 'element-plus';
@@ -58,17 +60,17 @@ const create = () => {
         return
     }
     console.log({ vote })
-    getUserInfo().then(res => {
+    getBaseInfo().then((res) => {
         post(`/api/ext/vote/create`, {
             title: vote.title,
             options: vote.options,
             multipleChoice: vote.multipleChoice,
             publicResult: vote.publicResult,
-            userId: res.data.userInfo.username
+            userId: res.userInfo.username,
+            channelId: res.currentChannelInfo.channelId
         }).then((res: any) => {
             share({
-                customMsgType: 3,
-                titleName: vote.title,
+                title: vote.title,
                 options: vote.options,
                 url: `http://127.0.0.1:3000/ext/vote/show?id=${res.value.id}`,
             })
@@ -83,7 +85,12 @@ const create = () => {
             })
         })
     })
+}
 
+const getHistoryRecord = () => {
+    router.push({
+        path: '/ext/vote/historyRecord'
+    })
 }
 </script>
 <style >
@@ -92,7 +99,5 @@ const create = () => {
     margin: 0 auto;
 }
 
-.add-btn {
-    text-align: right
-}
+.add-btn {}
 </style>
