@@ -1,6 +1,5 @@
 <template>
   <div class="ext__share">
-
     <ElScrollbar>
       <div class="ext__cur-header">
         <img :src="current.backgroundUrl">
@@ -95,7 +94,6 @@
       height: 200px;
       background-color: brown;
       position: relative;
-      margin-top: 12px;
       border-radius: 4px;
 
       img {

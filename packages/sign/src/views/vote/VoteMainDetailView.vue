@@ -27,7 +27,7 @@
             v-show="(!selected || vote.finish)">投票</el-button>
         <div v-if="(vote.userId === userId)">
             <el-button type="primary" :disabled="selectBtnDisabled" @click="sendMsg" class="select-btn">重发到群</el-button>
-            <el-button type="normal" :disabled="selectBtnDisabled" @click="close" class="select-btn">结束投票</el-button>
+            <el-button :disabled="selectBtnDisabled" @click="close" class="select-btn">结束投票</el-button>
         </div>
     </div>
 </template>

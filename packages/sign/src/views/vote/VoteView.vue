@@ -30,7 +30,7 @@
 import router from '@/router';
 import { getBaseInfo, share } from '@/utils/ext';
 import { post } from '@/utils/http';
-// import { Delete } from "@element-plus/icons-vue";
+import { Delete } from "@element-plus/icons-vue";
 import { ElButton, ElCheckbox, ElDivider, ElForm, ElFormItem, ElInput, ElMessage } from 'element-plus';
 import { reactive, ref, watch } from 'vue';
 const createBtnDisabled = ref(true)
@@ -71,18 +71,12 @@ const create = () => {
         }).then((res: any) => {
             share({
                 title: vote.title,
-                options: vote.options,
+                // options: vote.options,
                 url: `http://127.0.0.1:3000/ext/vote/show?id=${res.value.id}`,
             })
-            ElMessage({
-                message: `创建成功`,
-                type: 'success',
-            })
+            ElMessage.success('创建成功')
         }).catch(res => {
-            ElMessage({
-                message: res.msg,
-                type: 'warning',
-            })
+            ElMessage.warning(res.msg)
         })
     })
 }

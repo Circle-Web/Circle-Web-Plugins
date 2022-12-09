@@ -74,8 +74,18 @@ export interface IShareInfo {
  * 分享的时候会带上
  */
 export interface ICustomExts {
-    title: string
-    backgroundUrl: string
+    /**
+     * 分享的标题
+     */
+    title?: string
+    /**
+     * 分享的背景图片
+     */
+    backgroundUrl?: string
+    /**
+     * 可以打开弹窗
+     */
+    url?: string
 }
 
 /**

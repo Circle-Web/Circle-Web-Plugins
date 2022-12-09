@@ -5,37 +5,71 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/',
+      redirect: '/ext/reportShare'
+    },
+    {
       path: '/ext/reportShare',
       name: 'reportShare',
-      component: ReportShareView
+      component: ReportShareView,
+      meta: {
+        title: '打卡',
+        isShowBack: false
+      }
     },
     {
       path: '/ext/sign',
       name: 'sign',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/SignView.vue')
+      component: () => import('../views/SignView.vue'),
+      meta: {
+        title: '每日签到',
+        isShowBack: false
+      }
     },
     {
       path: '/ext/robot',
       name: 'robot',
-      component: () => import('../views/RobotView.vue')
+      component: () => import('../views/RobotView.vue'),
+      meta: {
+        title: '机器人',
+        isShowBack: false
+      }
     },
     {
-      path: '/ext/vote/index',
+      path: '/ext/robot/detail',
+      name: 'robotDetail',
+      component: () => import('../views/robot/RobotDetailView.vue'),
+      meta: {
+        title: '机器人详情',
+        isShowBack: true
+      }
+    },
+    {
+      path: '/ext/vote',
       name: 'vote',
-      component: () => import('../views/vote/VoteView.vue')
+      component: () => import('../views/vote/VoteView.vue'),
+      meta: {
+        title: '投票',
+        isShowBack: false
+      }
     },
     {
       path: '/ext/vote/mainDetail',
       name: 'voteMainDetail',
-      component: () => import('../views/vote/VoteMainDetailView.vue')
+      component: () => import('../views/vote/VoteMainDetailView.vue'),
+      meta: {
+        title: '投票详情',
+        isShowBack: true
+      }
     },
     {
       path: '/ext/vote/historyRecord',
       name: 'voteHistoryRecord',
-      component: () => import('../views/vote/VoteHistoryRecordView.vue')
+      component: () => import('../views/vote/VoteHistoryRecordView.vue'),
+      meta: {
+        title: '投票历史',
+        isShowBack: true
+      }
     },
   ]
 })
