@@ -165,7 +165,7 @@ const select = () => {
 const sendMsg = () => {
     getBaseInfo().then((res: IBaseInfo) => {
         const channelId = res.currentChannelInfo.channelId
-        //todo: 根据前端缓存的webhook
+        //todo: 根据前端缓存的webhook key
         const key = ``
         const msg = {
             id: vote.id,
