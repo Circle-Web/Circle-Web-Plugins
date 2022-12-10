@@ -61,7 +61,7 @@ const create = () => {
     }
     console.log({ vote })
     getBaseInfo().then((res) => {
-        post(`/api/ext/vote/create`, {
+        post(`/ext/vote/create`, {
             title: vote.title,
             options: vote.options,
             multipleChoice: vote.multipleChoice,

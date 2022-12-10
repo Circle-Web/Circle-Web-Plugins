@@ -31,7 +31,7 @@ const list = reactive([{
 
 onMounted(() => {
   getBaseInfo().then((res) => {
-    get(`/api/ext/vote/historyRecord`, {
+    get(`/ext/vote/historyRecord`, {
       userId: res.userInfo.username,
       channelId: res.currentChannelInfo.channelId
     }).then((res: any) => {

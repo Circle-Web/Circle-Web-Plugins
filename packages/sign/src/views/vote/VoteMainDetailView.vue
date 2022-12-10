@@ -89,7 +89,7 @@ onMounted(() => {
 })
 
 const getMainRecord = () => {
-    get(`/api/ext/vote/mainRecord`, {
+    get(`/ext/vote/mainRecord`, {
         id: route.query.id,
         userId
     }).then((res: any) => {
@@ -143,7 +143,7 @@ const select = () => {
             select.push(index)
         }
     }
-    post(`/api/ext/vote/select`, {
+    post(`/ext/vote/select`, {
         id: vote.id,
         select,
         userId
@@ -172,7 +172,7 @@ const sendMsg = () => {
             title: vote.title,
             options: vote.options,
         }
-        post(`/api/im/robot/webhook/send?key=${key}`, {
+        post(`/im/robot/webhook/send?key=${key}`, {
             type: 'custom',
             body: {
                 msg: JSON.stringify(msg)
@@ -193,7 +193,7 @@ const sendMsg = () => {
 }
 const close = () => {
     //todo: 增加二次确认
-    post(`/api/ext/vote/close`, {
+    post(`/ext/vote/close`, {
         id: route.query.id,
         userId
     }).then((res: any) => {
