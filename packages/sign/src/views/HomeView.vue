@@ -74,12 +74,10 @@ import { CUSTOM_MSG_TYPE } from '@circle/sdk';
       customMsgType: CUSTOM_MSG_TYPE.SIGN_IN,
       title: current.curTitle,
       backgroundUrl: current.backgroundUrl
-    }).then(res => {
+    }).then(() => {
       ElMessage.success('分享成功')
-      console.log('res: ', res)
     }).catch(err => {
-      ElMessage.error(err.msg)
-      console.log('err: ', err)
+      ElMessage.error(err.msg || '网络异常, 请稍后重试')
     }).finally(() => {
       loading.value = false
     })

@@ -1,5 +1,8 @@
 <script lang="ts" setup>
   import {
+    useUserStore
+  } from '@/stores/user';
+  import {
     get
   } from '@/utils/http';
   import {
@@ -27,16 +30,16 @@
     list: IVoteDetail[]
   }
 
+
+  const userStore = useUserStore()
   onMounted(() => {
-    getBaseInfo().then((res) => {
-      get < IHistoryResponse > (`/ext/vote/historyRecord`, {
-        userId: res.userInfo.username,
-        channelId: res.currentChannelInfo.channelId
-      }).then((res) => {
-        list.value = res.value.list
-      }).catch(res => {
-        ElMessage.warning(res.msg || '网络异常, 获取投票历史失败')
-      })
+    get < IHistoryResponse > (`/ext/vote/historyRecord`, {
+      userId: userStore.baseInfo.userInfo.username,
+      channelId: userStore.baseInfo.currentChannelInfo.channelId
+    }).then((res) => {
+      list.value = res.value.list
+    }).catch(res => {
+      ElMessage.warning(res.msg || '网络异常, 获取投票历史失败')
     })
   })
 
@@ -74,20 +77,24 @@
   .ext__history {
     padding: 20px 8px;
     box-sizing: border-box;
+
     .ext__history-item {
       display: flex;
       flex-direction: column;
       cursor: pointer;
       padding: 12px;
       border-bottom: 1px solid var(--el-border-color-darker);
+
       &:hover {
         background-color: #3d3d3d;
       }
     }
+
     .ext__history-top {
       display: flex;
       flex-direction: row;
     }
+
     .ext__history-title {
       flex: 1;
       overflow: hidden;
@@ -96,6 +103,7 @@
       font-size: 16px;
       color: var(--el-text-color-primary);
     }
+
     .ext__history-bottom {
       font-size: 12px;
       margin-top: 4px;

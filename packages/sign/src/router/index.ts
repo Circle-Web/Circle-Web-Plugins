@@ -1,3 +1,5 @@
+import { useUserStore } from '@/stores/user'
+import { getBaseInfo } from '@circle/sdk'
 import { createRouter, createWebHistory } from 'vue-router'
 import ReportShareView from '../views/HomeView.vue'
 
@@ -29,9 +31,9 @@ const router = createRouter({
     {
       path: '/ext/robot',
       name: 'robot',
-      component: () => import('../views/RobotView.vue'),
+      component: () => import('../views/robot/RobotView.vue'),
       meta: {
-        title: '机器人',
+        title: '添加机器人',
         isShowBack: false
       }
     },
@@ -72,6 +74,20 @@ const router = createRouter({
       }
     },
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+  if (userStore.baseInfo.userInfo.username) {
+    next()
+  } else {
+    getBaseInfo().then((res) => {
+      userStore.SET_BASE_INFO(res)
+      next()
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
 })
 
 export default router

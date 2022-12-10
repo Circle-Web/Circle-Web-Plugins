@@ -12,7 +12,7 @@ withDefaults(
         wrapperProps?: Record<string, any>;
     }>(),
     {
-        width: "420px",
+        width: "300px",
         showClose: false
     }
 );
@@ -31,7 +31,7 @@ const close = () => {
 </script>
 <template>
     <ElDialog
-        custom-class="wc-dialog__body"
+        class="my-dialog__body"
         :show-close="showClose"
         :close-on-press-escape="false"
         :close-on-click-modal="false"
@@ -51,17 +51,15 @@ const close = () => {
 </template>
 
 <style lang="scss">
-.wc-dialog__body {
-    --el-dialog-padding-primary: 0;
+.my-dialog__body {
+    
     .el-dialog__header {
         margin: 0;
         padding: 8px;
         text-align: center;
     }
-    .wc-call__body {
-        width: 100%;
-        height: 500px;
-        position: relative;
+    .el-dialog__body {
+        padding: 12px 20px;
     }
 }
 </style>

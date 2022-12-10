@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-    import {
+    import { useUserStore } from '@/stores/user';
+import {
         formatDateTime
     } from '@/utils';
     import {
@@ -52,7 +53,6 @@
     })
 
     const isSelfSelect = ref(false)
-    let userId = ''
 
     let singleSelect = ref(0)
 
@@ -60,10 +60,12 @@
 
     const selectedTotalCount = ref(0)
 
+    const userId = computed(() => userStore.baseInfo.userInfo.username)
+
     /**
      * 是否本人创建的投票表单
      */
-    const isSelfCreated = computed(() => userId === vote.userId)
+    const isSelfCreated = computed(() => userId.value === vote.userId)
 
     /**
      * 是否已经结束投票了
@@ -75,19 +77,16 @@
      */
     const isSelfFinished = computed(() => isSelfSelect.value || isFinished.value)
 
-
+    const userStore = useUserStore()
     onMounted(() => {
-        getBaseInfo().then(res => {
-            userId = res.userInfo.username
-            getMainRecord()
-        })
+        getMainRecord()
     })
 
     const route = useRoute();
     const getMainRecord = () => {
         get < IVoteResponse > (`/ext/vote/mainRecord`, {
             id: route.query.id,
-            userId
+            userId: userId.value
         }).then(({
             value
         }) => {
@@ -126,7 +125,7 @@
                  */
                 for (const index of select) {
                     option[index].selectCount++
-                    if (item.userId === userId) {
+                    if (item.userId === userId.value) {
                         option[index].select = true
                     }
                     option[index].percent = Math.round(option[index].selectCount / selectedTotalCount
@@ -155,7 +154,7 @@
         post(`/ext/vote/select`, {
             id: vote.id,
             select,
-            userId
+            userId: userId.value
         }).then(() => {
             getMainRecord()
             ElMessage.success('投票成功')
@@ -187,7 +186,7 @@
         }).then(() => {
             post(`/ext/vote/close`, {
                 id: route.query.id,
-                userId
+                userId: userId.value
             }).then(() => {
                 /**
                  * 结束投票结果
