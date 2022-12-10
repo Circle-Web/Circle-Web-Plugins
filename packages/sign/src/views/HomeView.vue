@@ -32,6 +32,7 @@
     ElMessage,
     ElScrollbar
   } from 'element-plus'
+import { CUSTOM_MSG_TYPE } from '@circle/sdk';
 
   const signList = [{
       title: '坚持戴口罩',
@@ -70,6 +71,7 @@
   const send = () => {
     loading.value = true
     share({
+      customMsgType: CUSTOM_MSG_TYPE.SIGN_IN,
       title: current.curTitle,
       backgroundUrl: current.backgroundUrl
     }).then(res => {

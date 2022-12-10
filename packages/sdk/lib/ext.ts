@@ -70,6 +70,25 @@ export interface IShareInfo {
 }
 
 /**
+ * 自定义的分享消息类型
+ */
+ export const enum CUSTOM_MSG_TYPE {
+    /**
+     * 邀请消息? 不知道是谁定义的
+     */
+    INVITE = 1,
+    /**
+     * 打卡消息
+     * @deprecated
+     */
+    SIGN_IN,
+    /**
+     * 卡片消息
+     */
+    CARD
+  }
+
+/**
  * 自定义的扩展信息
  * 分享的时候会带上
  */
@@ -79,6 +98,10 @@ export interface ICustomExts {
      */
     title?: string
     /**
+     * 分享的类型
+     */
+    customMsgType: CUSTOM_MSG_TYPE,
+    /**
      * 分享的背景图片
      */
     backgroundUrl?: string
@@ -86,6 +109,14 @@ export interface ICustomExts {
      * 可以打开弹窗
      */
     url?: string
+    /**
+     * 小标题
+     */
+    smallTitle?: string;
+    /**
+     * 描述
+     */
+    description?: string;
 }
 
 /**

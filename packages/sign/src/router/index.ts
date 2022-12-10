@@ -59,7 +59,7 @@ const router = createRouter({
       component: () => import('../views/vote/VoteMainDetailView.vue'),
       meta: {
         title: '投票详情',
-        isShowBack: true
+        isShowBack: false
       }
     },
     {
@@ -67,7 +67,7 @@ const router = createRouter({
       name: 'voteHistoryRecord',
       component: () => import('../views/vote/VoteHistoryRecordView.vue'),
       meta: {
-        title: '投票历史',
+        title: '历史投票',
         isShowBack: true
       }
     },

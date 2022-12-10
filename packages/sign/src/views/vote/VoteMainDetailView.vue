@@ -1,222 +1,319 @@
-<template>
-    <div style="margin: 20px" />
-    <h1 class="center">投票详情</h1>
-    <el-divider />
-
-    <div style="margin: 20px" />
-    <div class="title">
-        <div style="margin-right:10px;font-size:larger">{{ vote.title }}</div>
-        <el-tag>{{ vote.multipleChoice ? '多选' : '单选' }}</el-tag>
-    </div>
-    <div>
-        <div style="font-size:small;color: grey;">{{ vote.userId }} · {{ vote.createTime }} · {{ selectedTotalCount
-        }}人已投</div>
-    </div>
-    <div v-if="vote.finish">
-        <el-tag type="info">已结束</el-tag>
-    </div>
-    <div style="margin: 20px" />
-    <div v-for="(item, index) in vote.options" :key="index" class="option">
-        <el-checkbox v-if="vote.multipleChoice" v-model="item.select" :label="item.desc" size="large" />
-        <el-radio v-else v-model="singleSelect" :label="item.desc" size="large"></el-radio>
-        <el-divider />
-    </div>
-    <div style="margin: 100px" />
-    <div>
-        <el-button type="primary" :disabled="selectBtnDisabled" @click="select" class="select-btn"
-            v-show="(!selected || vote.finish)">投票</el-button>
-        <div v-if="(vote.userId === userId)">
-            <el-button type="primary" :disabled="selectBtnDisabled" @click="sendMsg" class="select-btn">重发到群</el-button>
-            <el-button :disabled="selectBtnDisabled" @click="close" class="select-btn">结束投票</el-button>
-        </div>
-    </div>
-</template>
-
 <script lang="ts" setup>
-import { getBaseInfo } from '@/utils/ext';
-import { get, post } from '@/utils/http';
-import type { IBaseInfo } from '@circle/sdk';
-import { ElButton, ElCheckbox, ElDivider, ElMessage, ElRadio, ElTag } from 'element-plus';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
-const selectBtnDisabled = ref(true)
-const vote = reactive({
-    id: 0,
-    title: '今天吃什么',
-    options: [{
-        desc: '肌肉',
-        selectCount: 11,
-        select: false
-    }, {
-        desc: '鸭肉',
-        selectCount: 112,
-        select: false
-    }, {
-        desc: '鸭肉',
-        selectCount: 112,
-        select: false
-    }, {
-        desc: '鸭肉',
-        selectCount: 112,
-        select: false
-    }],
-    multipleChoice: false,
-    publicResult: false,
-    finish: false,
-    userId: '唐庆宁',
-    createTime: "2022-12-08"
-})
-const selected = ref(false)
-let userId = ''
-const route = useRoute();
-let singleSelect = ref(0)
+    import {
+        formatDateTime
+    } from '@/utils';
+    import {
+        getBaseInfo
+    } from '@/utils/ext';
+    import {
+        get,
+        post
+    } from '@/utils/http';
+    import {
+        CUSTOM_MSG_TYPE,
+        share
+    } from '@circle/sdk';
+    import {
+        ElButton,
+        ElCheckbox,
+        ElMessage,
+        ElRadio,
+        ElTag,
+        ElScrollbar,
+        ElProgress,
+        ElMessageBox
+    } from 'element-plus';
+    import {
+        computed,
+        onMounted,
+        reactive,
+        ref
+    } from 'vue';
+    import {
+        useRoute
+    } from 'vue-router';
+    import type {
+        IVoteDetail,
+        IVoteOption,
+        IVoteResponse
+    } from './types';
 
-const selectedTotalCount = computed(() => {
-    return vote.options.map(o => o.selectCount).reduce((v1, v2) => v1 + v2)
-})
 
-watch(vote.options, () => {
-    selectBtnDisabled.value = vote.options.filter(o => o.select).length <= 0
-})
-onMounted(() => {
-    getBaseInfo().then(res => {
-        if (!res) {
-            return
-        }
-        userId = res.userInfo.username
-        getMainRecord()
+
+    const vote = reactive < IVoteDetail < IVoteOption > > ({
+        id: 0,
+        title: '',
+        option: [],
+        multipleChoice: false,
+        publicResult: false,
+        finish: false,
+        userId: '',
+        createTime: Date.now()
     })
-})
 
-const getMainRecord = () => {
-    get(`/ext/vote/mainRecord`, {
-        id: route.query.id,
-        userId
-    }).then((res: any) => {
-        selected.value = res.value.selected
-        vote.id = res.value.mainRecord.id
-        vote.title = res.value.mainRecord.title
-        vote.multipleChoice = res.value.mainRecord.multipleChoice
-        vote.publicResult = res.value.mainRecord.publicResult
-        vote.finish = res.value.mainRecord.finish
-        vote.userId = res.value.mainRecord.userId
-        vote.createTime = res.value.mainRecord.createTime
+    const isSelfSelect = ref(false)
+    let userId = ''
 
-        const options = []
-        for (let index = 0; index < res.value.mainRecord.options.length; index++) {
-            const element = res.value.mainRecord.options[index];
-            options.push({
-                desc: element,
-                selectCount: 0,
-                select: false
+    let singleSelect = ref(0)
+
+    const createTime = computed(() => formatDateTime(vote.createTime))
+
+    const selectedTotalCount = ref(0)
+
+    /**
+     * 是否本人创建的投票表单
+     */
+    const isSelfCreated = computed(() => userId === vote.userId)
+
+    /**
+     * 是否已经结束投票了
+     */
+    const isFinished = computed(() => vote.finish)
+
+    /**
+     * 对于本人来说是否已经结束投票了
+     */
+    const isSelfFinished = computed(() => isSelfSelect.value || isFinished.value)
+
+
+    onMounted(() => {
+        getBaseInfo().then(res => {
+            userId = res.userInfo.username
+            getMainRecord()
+        })
+    })
+
+    const route = useRoute();
+    const getMainRecord = () => {
+        get < IVoteResponse > (`/ext/vote/mainRecord`, {
+            id: route.query.id,
+            userId
+        }).then(({
+            value
+        }) => {
+            const {
+                selected,
+                mainRecord,
+                list
+            } = value
+            Object.assign(vote, mainRecord)
+            isSelfSelect.value = selected
+
+            const option: IVoteOption[] = []
+            for (let index = 0; index < mainRecord.option.length; index++) {
+                const element = mainRecord.option[index];
+                option.push({
+                    desc: element,
+                    selectCount: 0,
+                    select: false,
+                    percent: 0
+                })
+            }
+
+            /**
+             * 总共多少人选择了
+             */
+            selectedTotalCount.value = list.length
+
+            /**
+             * 计算所有选票
+             */
+            for (const item of list) {
+                const select: number[] = item.select
+
+                /**
+                 * 计算每个选项的票数
+                 */
+                for (const index of select) {
+                    option[index].selectCount++
+                    if (item.userId === userId) {
+                        option[index].select = true
+                    }
+                    option[index].percent = Math.round(option[index].selectCount / selectedTotalCount
+                        .value * 100)
+                }
+
+            }
+
+            vote.option = option
+        }).catch(res => {
+            ElMessage({
+                message: res.msg || "网络异常, 请稍后重试",
+                type: 'warning',
             })
-        }
-        for (const iterator of res.value.list) {
-            const select: number[] = iterator.select
-            for (const index of select) {
-                options[index].selectCount++
+        })
+    }
+
+    const select = () => {
+        const select: number[] = []
+        for (let index = 0; index < vote.option.length; index++) {
+            const element = vote.option[index];
+            if (element.select) {
+                select.push(index)
             }
-            if (iterator.userId === userId) {
-                // todo：自己已投，修改ui，显示每个选项多少票
-            }
         }
-        vote.options = options
-    }).catch(res => {
-        ElMessage({
-            message: res.msg,
-            type: 'warning',
-        })
-    })
-}
-
-const select = () => {
-    if (vote.finish) {
-        return
-    }
-    if (selectBtnDisabled.value) {
-        return
-    }
-    const select: number[] = []
-    for (let index = 0; index < vote.options.length; index++) {
-        const element = vote.options[index];
-        if (element.select) {
-            select.push(index)
-        }
-    }
-    post(`/ext/vote/select`, {
-        id: vote.id,
-        select,
-        userId
-    }).then((res: any) => {
-        getMainRecord()
-        ElMessage({
-            message: `投票成功`,
-            type: 'success',
-        })
-    }).catch(res => {
-        ElMessage({
-            message: res.msg,
-            type: 'warning',
-        })
-    })
-
-}
-
-const sendMsg = () => {
-    getBaseInfo().then((res: IBaseInfo) => {
-        const channelId = res.currentChannelInfo.channelId
-        //todo: 根据前端缓存的webhook key
-        const key = ``
-        const msg = {
+        post(`/ext/vote/select`, {
             id: vote.id,
-            title: vote.title,
-            options: vote.options,
-        }
-        post(`/im/robot/webhook/send?key=${key}`, {
-            type: 'custom',
-            body: {
-                msg: JSON.stringify(msg)
-            },
-            customEvent: 'vote',
-            customExts: {
-                customMsgType: 4
-            }
-        }).then((res: any) => {
-
+            select,
+            userId
+        }).then(() => {
+            getMainRecord()
+            ElMessage.success('投票成功')
         }).catch(res => {
             ElMessage({
                 message: res.msg,
                 type: 'warning',
             })
         })
-    })
-}
-const close = () => {
-    //todo: 增加二次确认
-    post(`/ext/vote/close`, {
-        id: route.query.id,
-        userId
-    }).then((res: any) => {
-        vote.finish = true
-    }).catch(res => {
-        ElMessage({
-            message: res.msg,
-            type: 'warning',
+
+    }
+
+    const sendMsg = () => {
+        share({
+            customMsgType: CUSTOM_MSG_TYPE.CARD,
+            title: vote.title,
+            smallTitle: '投票',
+            description: vote.option.map(item => item.desc).join('&'),
+            url: `http://localhost:5174/ext/vote/mainDetail?id=${vote.id}`,
         })
-    })
-}
+    }
+    const close = () => {
+        ElMessageBox.confirm('确定要结束投票吗?', '提示', {
+            type: 'warning',
+            showCancelButton: true,
+            showConfirmButton: true,
+            cancelButtonText: '取消',
+            confirmButtonText: '确定'
+        }).then(() => {
+            post(`/ext/vote/close`, {
+                id: route.query.id,
+                userId
+            }).then(() => {
+                /**
+                 * 结束投票结果
+                 */
+                vote.finish = true
+            }).catch(res => {
+                ElMessage.warning(res.msg || '网络异常, 请稍后重试')
+            })
+        })
+    }
 </script>
-<style >
-.center {
-    width: 100%;
-    margin: 0 auto;
-}
 
-.title {
-    display: flex;
-}
+<template>
+    <div class="ext__vote-detail">
+        <div class="ext__detail-header">
+            <div class="ext__detail-title">{{ vote.title }}</div>
+            <ElTag size="small">{{ vote.multipleChoice ? '多选' : '单选' }}</ElTag>
+            <ElTag v-if="vote.finish" type="info" size="small" class="ext__detail-close">已结束</ElTag>
+        </div>
+        <div class="ext__detail-info">
+            <div class="ext__detail-info-user">{{ vote.userId }}</div>
+            <div> · {{ createTime }} · {{ selectedTotalCount}}人已投</div>
+        </div>
+        <ElScrollbar class="ext__detail-list">
+            <template v-if="isSelfFinished">
+                <div v-for="(item, index) in vote.option" :key="index" class="ext__detail-option">
+                    <div class="ext__option-info">
+                        <span class="ext__option-desc">{{ item.desc }}</span>
+                        <div class="ext__option-right">
+                            <span>{{ item.selectCount }}票</span>
+                            <span class="ext__option-percent">{{ item.percent }}%</span>
+                        </div>
+                    </div>
+                    <ElProgress class="ext__option-progress" :percentage="item.percent" :stroke-width="10"
+                        :show-text="false" />
+                </div>
+            </template>
+            <template v-else>
+                <div v-for="(item, index) in vote.option" :key="index" class="ext__detail-option">
+                    <ElCheckbox v-if="vote.multipleChoice" v-model="item.select" :label="item.desc" size="large" />
+                    <ElRadio v-else v-model="singleSelect" :label="item.desc" size="large"></ElRadio>
+                </div>
+            </template>
+        </ElScrollbar>
+        <div class="ext__detail-operator">
+            <ElButton v-if="!isSelfFinished" type="primary" @click="select" class="select-btn">投票</ElButton>
+            <ElButton v-if="!isFinished" type="primary" @click="sendMsg" class="select-btn">重发到群</ElButton>
+            <ElButton v-if="isSelfCreated && !isFinished" @click="close" class="select-btn">结束投票</ElButton>
+        </div>
+    </div>
+</template>
 
-.option {
-    width: 100%;
-}
+
+<style lang="scss">
+    .ext__vote-detail {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+
+
+        .ext__detail-header {
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+        }
+
+        .ext__detail-title {
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .ext__detail-close {
+            margin-left: 4px;
+        }
+
+        .ext__detail-info {
+            font-size: 14px;
+            color: #999;
+            margin-top: 4px;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .ext__detail-list {
+            flex: 1;
+        }
+
+        .ext__detail-option {
+            margin-top: 16px;
+        }
+
+        .ext__option-info {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ext__option-right {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+            font-size: 12px;
+            color: var(--el-text-color-placeholder);
+        }
+
+        .ext__option-percent {
+            margin-left: 4px;
+        }
+
+        .ext__option-desc {
+            font-size: 16px;
+            color: var(--el-text-color-primary);
+        }
+
+        .ext__option-progress {
+            margin-top: 4px;
+        }
+
+        .ext__detail-operator {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+            padding-top: 4px;
+        }
+    }
 </style>

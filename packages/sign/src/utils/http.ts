@@ -5,7 +5,7 @@ import { stringify } from "qs";
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
   // 请求超时时间
-  baseURL: "http://localhost:3000/api",
+  baseURL: "/api",
   timeout: 10000,
   headers: {
     Accept: "application/json, text/plain, */*",
@@ -37,6 +37,13 @@ instance.interceptors.response.use(
   }
 );
 
+
+export interface IResponse<T = any> {
+  code: number;
+  msg: string;
+  value: T
+}
+
 /**
  * request
  * @param method 请求方法 
@@ -44,8 +51,8 @@ instance.interceptors.response.use(
  * @param param  请求参数
  * @returns 
  */
-export const request = (method: Method, url: string, param: AxiosRequestConfig) => {
-  return instance.request({
+export const request = <T>(method: Method, url: string, param: AxiosRequestConfig) => {
+  return instance.request<T, IResponse<T>>({
     method,
     url,
     ...param
@@ -58,8 +65,8 @@ export const request = (method: Method, url: string, param: AxiosRequestConfig) 
  * @param params  请求参数
  * @returns 
  */
-export const get = (url: string, params: Record<string, any>) => {
-  return request("get", url, { params });
+export const get = <T>(url: string, params: Record<string, any>) => {
+  return request<T>("get", url, { params });
 }
 
 /**
@@ -68,6 +75,6 @@ export const get = (url: string, params: Record<string, any>) => {
  * @param data  请求参数
  * @returns 
  */
-export const post = (url: string, data: Record<string, any>) => {
-  return request("post", url, { data });
+export const post = <T>(url: string, data: Record<string, any>) => {
+  return request<T>("post", url, { data });
 }
