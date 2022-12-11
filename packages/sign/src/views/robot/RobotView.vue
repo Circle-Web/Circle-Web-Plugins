@@ -1,21 +1,17 @@
 <script lang="ts" setup>
   import MyDialog from '@/components/dialog/dialog';
   import {
-    get,
-    post
+    get
   } from '@/utils/http';
-  import {
-    getBaseInfo
-  } from '@circle/sdk';
   import {
     ElButton,
     ElScrollbar,
     ElMessage,
-    ElTag
+    ElTag,
+    ElLoadingDirective as vLoading
   } from 'element-plus';
   import {
     computed,
-    onBeforeMount,
     onMounted,
     ref
   } from 'vue';
@@ -30,18 +26,30 @@
   import {
     useUserStore
   } from '@/stores/user';
-
+import CopyRobot from './components/CopyRobot.vue';
+  
   const list = ref < IRobot[] > ([])
+
+  /**
+   * 用户信息
+   */
   const userStore = useUserStore()
   const username = computed(() => userStore.baseInfo.userInfo.username)
+  const loading = ref(false)
 
+  /**
+   * 获取机器人列表
+   */
   const getRobotList = () => {
+    loading.value = true
     get<IRobotListResponse>('/ext/robot/listRobots', {
       username: username.value
     }).then(res => {
       list.value = res.value.list
     }).catch(res => {
       ElMessage.warning(res.msg || '网络异常, 获取机器人列表失败')
+    }).finally(() => {
+      loading.value = false
     })
   }
 
@@ -50,7 +58,6 @@
   })
 
 
-  //todo: 打开详情，展示webhook地址，提供一个推送消息到群的示例
   const router = useRouter()
   const openDetailView = (id: number) => {
     router.push({
@@ -58,22 +65,6 @@
       query: {
         id
       }
-    })
-  }
-
-  // todo: 重置webhook地址
-  const resetKey = (id: number) => {
-    post(`/ext/robot/resetKey`, {
-      id,
-      username: username.value
-    }).then((res: any) => {
-      list.value.forEach(v => {
-        if (v.id === res.robot.id) {
-          v.webhook = res.robot.webhook
-        }
-      })
-    }).catch(res => {
-      ElMessage.warning(res.msg || '网络异常, 重置webhook地址失败')
     })
   }
 
@@ -89,7 +80,15 @@
         channelId: userStore.baseInfo.currentChannelInfo.channelId,
         username: username.value
       }
-    }).then(() => {
+    }).then((data) => {
+      /**
+       * 显示详情
+       */
+      MyDialog({
+        title: '机器人',
+        defaultSlot: CopyRobot,
+        wrapperProps: data
+      })
       /**
        * 添加完成后刷新列表
        */
@@ -101,7 +100,7 @@
 <template>
   <div class="ext__robot">
     <ElButton type="primary" class="ext__robot-add" @click="onAdd">新创建一个机器人</ElButton>
-    <ElScrollbar class="ext__robot-list">
+    <ElScrollbar class="ext__robot-list" v-loading="loading">
       <div class="ext__robot-item" v-for="item in list" :key="item.id" @click="openDetailView(item.id)">
         <div class="ext__robot-info">
           <div class="ext__robot-nickname">{{ item.robotNickname }}</div>
@@ -151,13 +150,13 @@
       margin-right: 4px;
       font-size: 16px;
       font-weight: bold;
-      color: var(--color-text-primary);
+      color: var(--el-text-color-primary);
     }
 
     .ext__robot-desc {
       font-size: 12px;
       margin-top: 4px;
-      color: var(--color-text-secondary);
+      color: var(--el-text-color-secondary);
     }
   }
 </style>

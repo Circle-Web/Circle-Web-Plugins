@@ -18,15 +18,15 @@ withDefaults(
 );
 
 const emits = defineEmits<{
-    (event: "close"): void;
+    (event: "close", data?: any): void;
     (event: "open"): void;
 }>();
 
 const handleOpened = async () => {
     emits("open");
 };
-const close = () => {
-    emits("close");
+const close = (data: any) => {
+    emits("close", data);
 };
 </script>
 <template>

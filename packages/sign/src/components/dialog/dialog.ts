@@ -28,10 +28,10 @@ const showDialog = (options: DialogProps, appContext?: AppContext | null) => {
     const container = genContainer();
     const instance = initInstance(options, container, appContext)!;
     const vm = instance.proxy as ComponentPublicInstance;
-    options.onClose = () => {
+    options.onClose = (data?: any) => {
         render(null, container);
         const {resolve} = dialogInstance.get(vm)!;
-        resolve()
+        resolve(data)
         dialogInstance.delete(vm);
     };
     return vm;
@@ -44,7 +44,7 @@ interface DialogProps {
     defaultSlot?: Component;
     footerSlot?: Component;
     wrapperProps?: Record<string, any>;
-    onClose?: () => void;
+    onClose?: (data?: any) => void;
 }
 
 export const MyDialog = (

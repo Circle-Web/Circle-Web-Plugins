@@ -12,9 +12,10 @@ ElMessage
     reactive,
     ref
   } from 'vue';
+import type { IRobot } from '../types';
 
   const emits = defineEmits({
-    close: () => void 0
+    close: (params?: any) => void 0
   })
 
   const props = defineProps({
@@ -51,14 +52,14 @@ ElMessage
     formRef.value?.validate((valid) => {
       if (valid) {
         loading.value = true
-        post('/ext/robot/create', {
+        post<{robot: IRobot}>('/ext/robot/create', {
           robotName: form.robotName,
           username: props.username,
           serverId: props.serverId,
           channelId: props.channelId
-        }).then(() => {
+        }).then((res: any) => {
           ElMessage.success('添加机器人成功')
-          cancel()
+          cancel(res.value.robot)
         }).catch(() => {
           ElMessage.error('添加机器人失败')
         }).finally(() => {
@@ -68,8 +69,8 @@ ElMessage
     })
   }
 
-  const cancel = () => {
-    emits('close')
+  const cancel = (robot?: IRobot) => {
+    emits('close', robot)
   }
 </script>
 
@@ -84,7 +85,7 @@ ElMessage
       <ElButton type="primary" @click="submit" :loading="loading">添加机器人</ElButton>
     </div>
     <div class="ext__robot-dialog-cancel">
-      <ElButton type="primary" link @click="cancel">返回</ElButton>
+      <ElButton type="primary" link @click="cancel()">返回</ElButton>
     </div>
   </div>
 </template>
