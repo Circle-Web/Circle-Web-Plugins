@@ -22,7 +22,7 @@ const router = createRouter({
     {
       path: '/ext/sign',
       name: 'sign',
-      component: () => import('../views/SignView.vue'),
+      component: () => import('../views/sign/SignView.vue'),
       meta: {
         title: '每日签到',
         isShowBack: false
