@@ -87,7 +87,8 @@ import CopyRobot from './components/CopyRobot.vue';
       MyDialog({
         title: '机器人',
         defaultSlot: CopyRobot,
-        wrapperProps: data
+        wrapperProps: data,
+        showClose: true
       })
       /**
        * 添加完成后刷新列表

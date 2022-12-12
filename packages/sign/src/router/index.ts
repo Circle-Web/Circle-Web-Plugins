@@ -73,6 +73,15 @@ const router = createRouter({
         isShowBack: true
       }
     },
+    {
+      path: '/ext/market',
+      name: 'market',
+      component: () => import('../views/market/MarketView.vue'),
+      meta: {
+        title: '插件商店',
+        isShowBack: false
+      }
+    },
   ]
 })
 

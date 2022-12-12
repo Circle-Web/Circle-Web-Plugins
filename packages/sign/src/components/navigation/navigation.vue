@@ -33,7 +33,7 @@ const title = computed(() => router.currentRoute.value.meta.title)
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 8px;
+  padding: 6px 8px;
   border-bottom: 1px solid rgba($color: #ffffff, $alpha: .1);
   .navigation__logo {
     cursor: pointer;
@@ -43,6 +43,7 @@ const title = computed(() => router.currentRoute.value.meta.title)
   }
   .navigation__title {
     flex: 1;
+    font-size: 18px;
     text-align: center;
   }
 }
