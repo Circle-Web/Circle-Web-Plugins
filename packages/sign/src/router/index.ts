@@ -82,6 +82,24 @@ const router = createRouter({
         isShowBack: false
       }
     },
+    {
+      path: '/ext/market/detail',
+      name: 'marketDetail',
+      component: () => import('../views/market/MarketDetailView.vue'),
+      meta: {
+        title: '插件详情',
+        isShowBack: true
+      }
+    },
+    {
+      path: '/ext/code',
+      name: 'code',
+      component: () => import('../views/code/CodeView.vue'),
+      meta: {
+        title: '代码片段',
+        isShowBack: false
+      }
+    }
   ]
 })
 
