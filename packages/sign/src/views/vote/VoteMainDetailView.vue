@@ -1,202 +1,195 @@
 <script lang="ts" setup>
-    import { useUserStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user';
 import {
-        formatDateTime
-    } from '@/utils';
-    import {
-        getBaseInfo
-    } from '@/utils/ext';
-    import {
-        get,
-        post
-    } from '@/utils/http';
-    import {
-        CUSTOM_MSG_TYPE,
-        share
-    } from '@circle/sdk';
-    import {
-        ElButton,
-        ElCheckbox,
-        ElMessage,
-        ElRadio,
-        ElTag,
-        ElScrollbar,
-        ElProgress,
-        ElMessageBox
-    } from 'element-plus';
-    import {
-        computed,
-        onMounted,
-        reactive,
-        ref
-    } from 'vue';
-    import {
-        useRoute
-    } from 'vue-router';
-    import type {
-        IVoteDetail,
-        IVoteOption,
-        IVoteResponse
-    } from './types';
+    formatDateTime
+} from '@/utils';
+import {
+    get,
+    post
+} from '@/utils/http';
+import {
+    CUSTOM_MSG_TYPE,
+    share
+} from '@circle/sdk';
+import {
+    ElButton,
+    ElCheckbox,
+    ElMessage, ElMessageBox, ElProgress, ElRadio, ElScrollbar, ElTag
+} from 'element-plus';
+import {
+    computed,
+    onMounted,
+    reactive,
+    ref
+} from 'vue';
+import {
+    useRoute
+} from 'vue-router';
+import type {
+    IVoteDetail,
+    IVoteOption,
+    IVoteResponse
+} from './types';
 
 
 
-    const vote = reactive < IVoteDetail < IVoteOption > > ({
-        id: 0,
-        title: '',
-        option: [],
-        multipleChoice: false,
-        publicResult: false,
-        finish: false,
-        userId: '',
-        createTime: Date.now()
+const vote = reactive<IVoteDetail<IVoteOption>>({
+    id: 0,
+    title: '',
+    option: [],
+    multipleChoice: false,
+    publicResult: false,
+    finish: false,
+    userId: '',
+    createTime: Date.now()
+})
+
+const isSelfSelect = ref(false)
+
+let singleSelect = ref(0)
+
+const createTime = computed(() => formatDateTime(vote.createTime))
+
+const selectedTotalCount = ref(0)
+
+const userId = computed(() => userStore.baseInfo.userInfo.username)
+
+/**
+ * 是否本人创建的投票表单
+ */
+const isSelfCreated = computed(() => userId.value === vote.userId)
+
+/**
+ * 是否已经结束投票了
+ */
+const isFinished = computed(() => vote.finish)
+
+/**
+ * 对于本人来说是否已经结束投票了
+ */
+const isSelfFinished = computed(() => isSelfSelect.value || isFinished.value)
+
+const userStore = useUserStore()
+onMounted(() => {
+    getMainRecord()
+})
+
+const route = useRoute();
+const getMainRecord = () => {
+    console.warn(route.query)
+    get<IVoteResponse>(`/ext/vote/mainRecord`, {
+        id: route.query.id,
+        userId: userId.value
+    }).then(({
+        value
+    }) => {
+        const {
+            selected,
+            mainRecord,
+            list
+        } = value
+        Object.assign(vote, mainRecord)
+        isSelfSelect.value = selected
+
+        const option: IVoteOption[] = []
+        for (let index = 0; index < mainRecord.option.length; index++) {
+            const element = mainRecord.option[index];
+            option.push({
+                desc: element,
+                selectCount: 0,
+                select: false,
+                percent: 0
+            })
+        }
+
+        /**
+         * 总共多少人选择了
+         */
+        selectedTotalCount.value = list.length
+
+        /**
+         * 计算所有选票
+         */
+        for (const item of list) {
+            const select: number[] = item.select
+
+            /**
+             * 计算每个选项的票数
+             */
+            for (const index of select) {
+                option[index].selectCount++
+                if (item.userId === userId.value) {
+                    option[index].select = true
+                }
+                option[index].percent = Math.round(option[index].selectCount / selectedTotalCount
+                    .value * 100)
+            }
+
+        }
+
+        vote.option = option
+    }).catch(res => {
+        ElMessage({
+            message: res.msg || "网络异常, 请稍后重试",
+            type: 'warning',
+        })
     })
+}
 
-    const isSelfSelect = ref(false)
-
-    let singleSelect = ref(0)
-
-    const createTime = computed(() => formatDateTime(vote.createTime))
-
-    const selectedTotalCount = ref(0)
-
-    const userId = computed(() => userStore.baseInfo.userInfo.username)
-
-    /**
-     * 是否本人创建的投票表单
-     */
-    const isSelfCreated = computed(() => userId.value === vote.userId)
-
-    /**
-     * 是否已经结束投票了
-     */
-    const isFinished = computed(() => vote.finish)
-
-    /**
-     * 对于本人来说是否已经结束投票了
-     */
-    const isSelfFinished = computed(() => isSelfSelect.value || isFinished.value)
-
-    const userStore = useUserStore()
-    onMounted(() => {
+const select = () => {
+    const select: number[] = []
+    for (let index = 0; index < vote.option.length; index++) {
+        const element = vote.option[index];
+        if (element.select) {
+            select.push(index)
+        }
+    }
+    post(`/ext/vote/select`, {
+        id: vote.id,
+        select,
+        userId: userId.value
+    }).then(() => {
         getMainRecord()
+        ElMessage.success('投票成功')
+    }).catch(res => {
+        ElMessage({
+            message: res.msg,
+            type: 'warning',
+        })
     })
 
-    const route = useRoute();
-    const getMainRecord = () => {
-        get < IVoteResponse > (`/ext/vote/mainRecord`, {
+}
+
+const sendMsg = () => {
+    share({
+        customMsgType: CUSTOM_MSG_TYPE.CARD,
+        title: vote.title,
+        smallTitle: '投票',
+        description: vote.option.map(item => item.desc).join('&'),
+        url: `http://localhost:5174/ext/vote/mainDetail?id=${vote.id}`,
+    })
+}
+const close = () => {
+    ElMessageBox.confirm('确定要结束投票吗?', '提示', {
+        type: 'warning',
+        showCancelButton: true,
+        showConfirmButton: true,
+        cancelButtonText: '取消',
+        confirmButtonText: '确定'
+    }).then(() => {
+        post(`/ext/vote/close`, {
             id: route.query.id,
             userId: userId.value
-        }).then(({
-            value
-        }) => {
-            const {
-                selected,
-                mainRecord,
-                list
-            } = value
-            Object.assign(vote, mainRecord)
-            isSelfSelect.value = selected
-
-            const option: IVoteOption[] = []
-            for (let index = 0; index < mainRecord.option.length; index++) {
-                const element = mainRecord.option[index];
-                option.push({
-                    desc: element,
-                    selectCount: 0,
-                    select: false,
-                    percent: 0
-                })
-            }
-
-            /**
-             * 总共多少人选择了
-             */
-            selectedTotalCount.value = list.length
-
-            /**
-             * 计算所有选票
-             */
-            for (const item of list) {
-                const select: number[] = item.select
-
-                /**
-                 * 计算每个选项的票数
-                 */
-                for (const index of select) {
-                    option[index].selectCount++
-                    if (item.userId === userId.value) {
-                        option[index].select = true
-                    }
-                    option[index].percent = Math.round(option[index].selectCount / selectedTotalCount
-                        .value * 100)
-                }
-
-            }
-
-            vote.option = option
-        }).catch(res => {
-            ElMessage({
-                message: res.msg || "网络异常, 请稍后重试",
-                type: 'warning',
-            })
-        })
-    }
-
-    const select = () => {
-        const select: number[] = []
-        for (let index = 0; index < vote.option.length; index++) {
-            const element = vote.option[index];
-            if (element.select) {
-                select.push(index)
-            }
-        }
-        post(`/ext/vote/select`, {
-            id: vote.id,
-            select,
-            userId: userId.value
         }).then(() => {
-            getMainRecord()
-            ElMessage.success('投票成功')
+            /**
+             * 结束投票结果
+             */
+            vote.finish = true
         }).catch(res => {
-            ElMessage({
-                message: res.msg,
-                type: 'warning',
-            })
+            ElMessage.warning(res.msg || '网络异常, 请稍后重试')
         })
-
-    }
-
-    const sendMsg = () => {
-        share({
-            customMsgType: CUSTOM_MSG_TYPE.CARD,
-            title: vote.title,
-            smallTitle: '投票',
-            description: vote.option.map(item => item.desc).join('&'),
-            url: `http://localhost:5174/ext/vote/mainDetail?id=${vote.id}`,
-        })
-    }
-    const close = () => {
-        ElMessageBox.confirm('确定要结束投票吗?', '提示', {
-            type: 'warning',
-            showCancelButton: true,
-            showConfirmButton: true,
-            cancelButtonText: '取消',
-            confirmButtonText: '确定'
-        }).then(() => {
-            post(`/ext/vote/close`, {
-                id: route.query.id,
-                userId: userId.value
-            }).then(() => {
-                /**
-                 * 结束投票结果
-                 */
-                vote.finish = true
-            }).catch(res => {
-                ElMessage.warning(res.msg || '网络异常, 请稍后重试')
-            })
-        })
-    }
+    })
+}
 </script>
 
 <template>
@@ -208,7 +201,7 @@ import {
         </div>
         <div class="ext__detail-info">
             <div class="ext__detail-info-user">{{ vote.userId }}</div>
-            <div> · {{ createTime }} · {{ selectedTotalCount}}人已投</div>
+            <div> · {{ createTime }} · {{ selectedTotalCount }}人已投</div>
         </div>
         <ElScrollbar class="ext__detail-list">
             <template v-if="isSelfFinished">
@@ -241,78 +234,78 @@ import {
 
 
 <style lang="scss">
-    .ext__vote-detail {
-        padding: 20px;
+.ext__vote-detail {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+
+
+    .ext__detail-header {
         display: flex;
-        flex-direction: column;
-
-
-        .ext__detail-header {
-            display: flex;
-            align-items: center;
-            flex-direction: row;
-        }
-
-        .ext__detail-title {
-            font-size: 20px;
-            margin-right: 12px;
-        }
-
-        .ext__detail-close {
-            margin-left: 4px;
-        }
-
-        .ext__detail-info {
-            font-size: 14px;
-            color: #999;
-            margin-top: 4px;
-            display: flex;
-            flex-direction: row;
-        }
-
-        .ext__detail-list {
-            flex: 1;
-        }
-
-        .ext__detail-option {
-            margin-top: 16px;
-        }
-
-        .ext__option-info {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .ext__option-right {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-end;
-            font-size: 12px;
-            color: var(--el-text-color-placeholder);
-        }
-
-        .ext__option-percent {
-            margin-left: 4px;
-        }
-
-        .ext__option-desc {
-            font-size: 16px;
-            color: var(--el-text-color-primary);
-        }
-
-        .ext__option-progress {
-            margin-top: 4px;
-        }
-
-        .ext__detail-operator {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-end;
-            padding-top: 4px;
-        }
+        align-items: center;
+        flex-direction: row;
     }
+
+    .ext__detail-title {
+        font-size: 20px;
+        margin-right: 12px;
+    }
+
+    .ext__detail-close {
+        margin-left: 4px;
+    }
+
+    .ext__detail-info {
+        font-size: 14px;
+        color: #999;
+        margin-top: 4px;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .ext__detail-list {
+        flex: 1;
+    }
+
+    .ext__detail-option {
+        margin-top: 16px;
+    }
+
+    .ext__option-info {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .ext__option-right {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        font-size: 12px;
+        color: var(--el-text-color-placeholder);
+    }
+
+    .ext__option-percent {
+        margin-left: 4px;
+    }
+
+    .ext__option-desc {
+        font-size: 16px;
+        color: var(--el-text-color-primary);
+    }
+
+    .ext__option-progress {
+        margin-top: 4px;
+    }
+
+    .ext__detail-operator {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        padding-top: 4px;
+    }
+}
 </style>

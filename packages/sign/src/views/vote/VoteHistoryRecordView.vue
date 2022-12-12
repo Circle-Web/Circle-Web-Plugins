@@ -1,61 +1,56 @@
 <script lang="ts" setup>
-  import {
-    useUserStore
-  } from '@/stores/user';
-  import {
-    get
-  } from '@/utils/http';
-  import {
-    getBaseInfo
-  } from '@circle/sdk';
-  import {
-    ElMessage,
-    ElTag,
-    ElScrollbar
-  } from 'element-plus';
-  import {
-    onMounted,
-    ref
-  } from 'vue';
-  import {
-    useRouter
-  } from 'vue-router';
-  import type {
-    IVoteDetail
-  } from './types';
+import {
+  useUserStore
+} from '@/stores/user';
+import {
+  get
+} from '@/utils/http';
+import {
+  ElMessage, ElScrollbar, ElTag
+} from 'element-plus';
+import {
+  onMounted,
+  ref
+} from 'vue';
+import {
+  useRouter
+} from 'vue-router';
+import type {
+  IVoteDetail
+} from './types';
 
-  const list = ref < IVoteDetail[] > ([])
+const list = ref<IVoteDetail[]>([])
 
-  interface IHistoryResponse {
-    list: IVoteDetail[]
-  }
+interface IHistoryResponse {
+  list: IVoteDetail[]
+}
 
 
-  const userStore = useUserStore()
-  onMounted(() => {
-    get < IHistoryResponse > (`/ext/vote/historyRecord`, {
-      userId: userStore.baseInfo.userInfo.username,
-      channelId: userStore.baseInfo.currentChannelInfo.channelId
-    }).then((res) => {
-      list.value = res.value.list
-    }).catch(res => {
-      ElMessage.warning(res.msg || '网络异常, 获取投票历史失败')
-    })
+const userStore = useUserStore()
+onMounted(() => {
+  get<IHistoryResponse>(`/ext/vote/historyRecord`, {
+    userId: userStore.baseInfo.userInfo.username,
+    channelId: userStore.baseInfo.currentChannelInfo.channelId
+  }).then((res) => {
+    list.value = res.value.list
+  }).catch(res => {
+    ElMessage.warning(res.msg || '网络异常, 获取投票历史失败')
   })
+})
 
-  /**
-   * 跳转详情
-   * @param id 
-   */
-  const router = useRouter()
-  const gotoMainDetail = (id: number) => {
-    router.push({
-      path: '/ext/vote/mainDetail',
-      params: {
-        id
-      }
-    })
-  }
+/**
+ * 跳转详情
+ * @param id 
+ */
+const router = useRouter()
+const gotoMainDetail = (id: number) => {
+  router.push({
+    path: '/ext/vote/mainDetail',
+    query: {
+      id
+    }
+  })
+}
 </script>
 
 <template>
@@ -74,40 +69,40 @@
 
 
 <style lang="scss">
-  .ext__history {
-    padding: 20px 8px;
-    box-sizing: border-box;
+.ext__history {
+  padding: 20px 8px;
+  box-sizing: border-box;
 
-    .ext__history-item {
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
-      padding: 12px;
-      border-bottom: 1px solid var(--el-border-color-darker);
+  .ext__history-item {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    padding: 12px;
+    border-bottom: 1px solid var(--el-border-color-darker);
 
-      &:hover {
-        background-color: #3d3d3d;
-      }
-    }
-
-    .ext__history-top {
-      display: flex;
-      flex-direction: row;
-    }
-
-    .ext__history-title {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: 16px;
-      color: var(--el-text-color-primary);
-    }
-
-    .ext__history-bottom {
-      font-size: 12px;
-      margin-top: 4px;
-      color: var(--el-text-color-placeholder);
+    &:hover {
+      background-color: #3d3d3d;
     }
   }
+
+  .ext__history-top {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .ext__history-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 16px;
+    color: var(--el-text-color-primary);
+  }
+
+  .ext__history-bottom {
+    font-size: 12px;
+    margin-top: 4px;
+    color: var(--el-text-color-placeholder);
+  }
+}
 </style>

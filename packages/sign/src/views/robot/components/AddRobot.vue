@@ -1,77 +1,74 @@
 <script lang="ts" setup>
-  import { post } from '@/utils/http';
+import { post } from '@/utils/http';
 import {
-    ElInput,
-    ElForm,
-    ElFormItem,
-    ElButton,
-    type FormInstance,
-ElMessage
-  } from 'element-plus'
-  import {
-    reactive,
-    ref
-  } from 'vue';
+  ElButton, ElForm,
+  ElFormItem, ElInput, ElMessage, type FormInstance
+} from 'element-plus';
+import {
+  reactive,
+  ref
+} from 'vue';
 import type { IRobot } from '../types';
 
-  const emits = defineEmits({
-    close: (params?: any) => void 0
-  })
+const emits = defineEmits({
+  close: (params?: any) => void 0
+})
 
-  const props = defineProps({
-    username: String,
-    serverId: String,
-    channelId: String,
-  })
+const props = defineProps({
+  username: String,
+  serverId: String,
+  channelId: String,
+})
 
-  const form = reactive({
-    robotName: ''
-  })
+const form = reactive({
+  robotName: ''
+})
 
-  /**
-   * create rules validate form
-   */
-  const rules = reactive({
-    robotName: [{
-        required: true,
-        message: '请输入机器人名称',
-        trigger: 'blur'
-      },
-      {
-        min: 1,
-        max: 20,
-        message: '长度在 1 到 20 个字符',
-        trigger: 'blur'
-      }
-    ]
-  })
-
-  const loading = ref(false)
-  const formRef = ref < FormInstance > ()
-  const submit = () => {
-    formRef.value?.validate((valid) => {
-      if (valid) {
-        loading.value = true
-        post<{robot: IRobot}>('/ext/robot/create', {
-          robotName: form.robotName,
-          username: props.username,
-          serverId: props.serverId,
-          channelId: props.channelId
-        }).then((res: any) => {
-          ElMessage.success('添加机器人成功')
-          cancel(res.value.robot)
-        }).catch(() => {
-          ElMessage.error('添加机器人失败')
-        }).finally(() => {
-          loading.value = false
-        })
-      }
-    })
+/**
+ * create rules validate form
+ */
+const rules = reactive({
+  robotName: [{
+    required: true,
+    message: '请输入机器人名称',
+    trigger: 'blur'
+  },
+  {
+    min: 1,
+    max: 20,
+    message: '长度在 1 到 20 个字符',
+    trigger: 'blur'
   }
+  ]
+})
 
-  const cancel = (robot?: IRobot) => {
-    emits('close', robot)
-  }
+const loading = ref(false)
+const formRef = ref<FormInstance>()
+const submit = () => {
+  formRef.value?.validate((valid) => {
+    if (valid) {
+      loading.value = true
+      post<{ robot: IRobot }>('/ext/robot/create', {
+        robotName: form.robotName,
+        username: props.username,
+        serverId: props.serverId,
+        channelId: props.channelId
+      }).then((res: any) => {
+        ElMessage.success('添加机器人成功')
+        cancel(res.value.robot)
+      }).catch((err) => {
+        console.log(err)
+        ElMessage.error('添加机器人失败')
+      }).finally(() => {
+        loading.value = false
+      })
+    }
+  })
+}
+
+const cancel = (robot?: IRobot) => {
+  emits('close', robot)
+}
 </script>
 
 <template>
@@ -91,15 +88,16 @@ import type { IRobot } from '../types';
 </template>
 
 <style lang="scss">
-  .ext__robot-dialog {
+.ext__robot-dialog {
 
-    .ext__robot-dialog-submit,
-    .ext__robot-dialog-cancel {
-      text-align: center;
-      margin-top: 12px;
-      .el-button {
-        width: 100%;
-      }
+  .ext__robot-dialog-submit,
+  .ext__robot-dialog-cancel {
+    text-align: center;
+    margin-top: 12px;
+
+    .el-button {
+      width: 100%;
     }
   }
+}
 </style>
