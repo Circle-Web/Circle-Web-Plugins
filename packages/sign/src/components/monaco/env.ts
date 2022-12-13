@@ -28,12 +28,10 @@ export const loadMonacoEnv = () => {
 /**
  * 语言列表
  */
-export const languageOptions = () => {
-    return [
-        { label: 'JSON', value: 'json' },
-        { label: 'CSS', value: 'css' },
-        { label: 'HTML', value: 'html' },
-        { label: 'TypeScript', value: 'typescript' },
-        { label: 'JavaScript', value: 'javascript' },
-    ];
-}
+export const languageOptions =  [
+    { label: 'JSON', value: 'json' },
+    { label: 'CSS', value: 'css' },
+    { label: 'HTML', value: 'html' },
+    { label: 'TypeScript', value: 'typescript' },
+    { label: 'JavaScript', value: 'javascript' },
+]
