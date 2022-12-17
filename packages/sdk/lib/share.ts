@@ -39,7 +39,7 @@ export interface ICustomExtsBase {
      * 如果需要可打开的消息, url是必选的
      * 需要打开的链接
      */
-    url: string
+    url?: string
 }
 
 /**
