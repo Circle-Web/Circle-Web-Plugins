@@ -24,6 +24,7 @@ export default defineConfig({
     theme: 'dark',
     css: true
   })],
+  base: "./",
   server: {
     port: 5174,
     proxy
@@ -38,7 +39,7 @@ export default defineConfig({
       'vue-router',
       'vue',
       'pinia',
-      'onigasm',
+      // 'onigasm',
       'element-plus',
       'prismjs',
       'clipboard',
