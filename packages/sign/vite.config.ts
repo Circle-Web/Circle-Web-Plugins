@@ -24,7 +24,6 @@ export default defineConfig({
     theme: 'dark',
     css: true
   })],
-  base: "./",
   server: {
     port: 5174,
     proxy
