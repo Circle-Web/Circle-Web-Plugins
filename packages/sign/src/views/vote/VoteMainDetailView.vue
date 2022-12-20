@@ -166,7 +166,7 @@ const sendMsg = () => {
         title: vote.title,
         smallTitle: '投票',
         description: vote.option.map(item => item.desc).join('&'),
-        url: `http://localhost:5174/ext/vote/mainDetail?id=${vote.id}`,
+        url: `http://121.37.205.80:4173/#/ext/vote/mainDetail?id=${vote.id}`,
     })
 }
 const close = () => {

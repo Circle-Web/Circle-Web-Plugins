@@ -64,7 +64,7 @@ import { useRouter } from 'vue-router';
                     title: vote.title,
                     smallTitle: '投票',
                     description: vote.options.join('&'),
-                    url: `http://localhost:5174/ext/vote/mainDetail?id=${result.value.record.id}`,
+                    url: `http://121.37.205.80:4173/#/ext/vote/mainDetail?id=${result.value.record.id}`,
                 })
                 ElMessage.success('创建成功')
             }).catch(res => {
