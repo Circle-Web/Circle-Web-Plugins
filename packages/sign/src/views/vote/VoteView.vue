@@ -30,7 +30,7 @@ import { useRouter } from 'vue-router';
     const vote = reactive({
         title: '',
         options: ['', ''],
-        multipleChoice: false,
+        multipleChoice: true,
         publicResult: false,
     })
 
@@ -100,9 +100,9 @@ import { useRouter } from 'vue-router';
                 </ElIcon>
                 <span @click="addOption" class="ext__vote-add-text">添加选项</span>
             </div>
-            <ElFormItem label="选项类型">
+            <!-- <ElFormItem label="选项类型">
                 <el-checkbox label="多选" v-model="vote.multipleChoice" />
-            </ElFormItem>
+            </ElFormItem> -->
             <ElFormItem label="投票结果">
                 <el-checkbox label="公开投票结果" v-model="vote.publicResult" />
             </ElFormItem>
