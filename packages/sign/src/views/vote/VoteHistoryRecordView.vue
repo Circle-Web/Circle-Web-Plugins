@@ -59,7 +59,7 @@ const gotoMainDetail = (id: number) => {
       <div class="ext__history-item" v-for="item in list" :key="item.id" @click="gotoMainDetail(item.id)">
         <div class="ext__history-top">
           <div class="ext__history-title">{{ item.title }}</div>
-          <ElTag type="info">已结束</ElTag>
+          <ElTag :type="item.finish ? 'info' : 'success'">已结束</ElTag>
         </div>
         <div class="ext__history-bottom">{{ item.option.join(', ') }}</div>
       </div>
